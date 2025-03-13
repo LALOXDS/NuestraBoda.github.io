@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nuestra Boda</title>
+  <style>
+    /* Importación de Google Fonts para tipografías elegantes */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+    /******************************************
+     *        ESTILOS GENERALES Y FUENTES
+     ******************************************/
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Lato', sans-serif;
+      background: transparent;
+      color: #333;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      z-index: -1;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      padding: 25px;
+      animation: slideIn 1s forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      color: #4a4a4a;
+    }
+    header p {
+      font-family: 'Lato', sans-serif;
+      font-size: 1.2rem;
+      color: #666;
+    }
+    .btn {
+      background: linear-gradient(to right, #d4af37, #e6c47f);
+      color: #fff;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background: linear-gradient(to right, #e6c47f, #d4af37);
+      transform: scale(1.07);
+    }
+    #player {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -2;
+    }
+    #toggleAudio {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      z-index: 101;
+      cursor: pointer;
+      background: linear-gradient(to right, #d4af37, #e6c47f);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+
+    /******************************************
+     *        ESTILOS DE LOGIN Y ADMIN
+     ******************************************/
+    #loginContainer {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #e7f0fa;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #loginContainer input {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+    #loginContainer button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #loginContainer button:hover {
+      background: #43a047;
+    }
+    #adminPanel {
+      display: none;
+      background: #faf5ff; /* Fondo claro para distinguir */
+      border: 2px solid #e0c3ff;
+    }
+    #adminPanel h2 {
+      color: #6f42c1; /* Un morado agradable */
+    }
+    #adminPanel .panel-section {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    #adminPanel h3 {
+      color: #ff6f91;
+      border-bottom: 2px solid #ff7eb3;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    /* Lista de asistencia en el Panel Admin */
+    #adminGuestList .guest-entry {
+      display: flex;            /* Alineamos en una sola fila */
+      justify-content: space-between;
+      align-items: center;
+      background: #f0d7ec; /* Un rosita suave */
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+    }
+    #adminGuestList .guest-entry p {
+      margin: 0;
+      flex: 1;  /* Ocupa todo el espacio disponible */
+    }
+    #adminGuestList .guest-entry div {
+      display: flex;
+      gap: 5px; /* Espacio entre botones */
+    }
+    .edit-btn {
+      background: #ff9800;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .edit-btn:hover {
+      opacity: 0.8;
+    }
+    .remove-btn {
+      background: #e91e63;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .remove-btn:hover {
+      opacity: 0.8;
+    }
+
+    /******************************************
+     *        CONTADOR REGRESIVO
+     ******************************************/
+    #countdownContainer {
+      max-width: 400px;
+      margin: 20px auto;
+      background: #ffeef5;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #countdown {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ff6f91;
+    }
+    .time-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .time-label {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /******************************************
+     *        HISTORIA / TIMELINE
+     ******************************************/
+    .timeline {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .timeline div {
+      background: #ffd6e0;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    /******************************************
+     *        BANDA MUSICAL
+     ******************************************/
+    .band-section h2 {
+      text-align: center;
+      color: #ff6f91;
+    }
+    .band-info {
+      background: #ffeef5;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    .band-info h3 {
+      margin-bottom: 10px;
+      color: #e91e63;
+    }
+
+    /******************************************
+     *        PHOTO BOOTH / GALERÍA
+     ******************************************/
+    .photo-booth h2 {
+      text-align: center;
+      color: #ff6f91;
+    }
+    .photo-booth p {
+      margin-bottom: 10px;
+    }
+    .gallery {
+      position: relative;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .slider-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+    /* Contenedor para cada foto */
+    .gallery-item {
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      border: 3px solid #ffb3c1;
+      border-radius: 10px;
+      margin-right: 5px;
+      box-sizing: border-box;
+      background: #fff; /* Fondo blanco detrás de la foto */
+    }
+    .gallery-item img {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-bottom: 8px;
+    }
+    .download-btn {
+      background: linear-gradient(to right, #ff6f91, #ff9671);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .download-btn:hover {
+      background: linear-gradient(to right, #ff9671, #ff6f91);
+      transform: scale(1.05);
+    }
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      padding: 10px;
+      z-index: 1;
+    }
+    .slider-btn.left {
+      left: 10px;
+    }
+    .slider-btn.right {
+      right: 10px;
+    }
+
+    /******************************************
+     *        FORMULARIOS DE ASISTENCIA
+     ******************************************/
+    .input, .select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ffb3c1;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    /******************************************
+     *        MENÚ DE COMIDA (PANEL)
+     ******************************************/
+    #adminMenu {
+      margin-top: 20px;
+    }
+    .menu-section {
+      background-color: #fff7fb; /* Un fondo suave rosado */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .menu-category {
+      margin-bottom: 15px;
+    }
+    .menu-category h4 {
+      color: #e91e63;
+      margin-bottom: 5px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #e91e63;
+      display: inline-block;
+      padding-bottom: 2px;
+    }
+    .menu-item {
+      margin: 3px 0;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .menu-item span {
+      display: inline-block;
+      padding-left: 10px;
+      position: relative;
+    }
+    .menu-item span::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #e91e63;
+    }
+
+    /******************************************
+     *        EFECTOS Y OTROS DETALLES
+     ******************************************/
+    footer {
+      background: rgba(255, 255, 255, 0.5);
+      color: #333;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 40px;
+    }
+    .bounce {
+      animation: bounce 0.3s;
+    }
+    @keyframes bounce {
+      0%   { transform: scale(1);   }
+      50%  { transform: scale(1.1); }
+      100% { transform: scale(1);   }
+    }
+    #notification {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffd6e0;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 999;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- ==============================
+       VIDEO DE FONDO Y BOTÓN DE AUDIO
+       ============================== -->
+  <div id="player"></div>
+  <button id="toggleAudio" onclick="toggleAudio()">Activar Audio</button>
+
+  <!-- ==============================
+       LOGIN PARA NOVIOS (ADMIN)
+       ============================== -->
+  <div id="loginContainer" class="container">
+    <h2>Login Novios</h2>
+    <input type="text" id="loginUsername" placeholder="Usuario">
+    <input type="password" id="loginPassword" placeholder="Contraseña">
+    <button onclick="loginNovios()">Ingresar</button>
+  </div>
+
+  <!-- ==============================
+       PANEL DE ADMINISTRACIÓN
+       ============================== -->
+  <div id="adminPanel" class="container" style="display:none;">
+    <h2>Panel de Administración</h2>
+    
+    <!-- LISTA DE ASISTENCIA -->
+    <div class="panel-section" id="adminGuestList">
+      <h3>Lista de Asistencia</h3>
+      <!-- Aquí se mostrarán los registros de asistencia de los invitados -->
+    </div>
+    
+    <!-- MENÚ DE COMIDA -->
+    <div class="panel-section" id="adminMenu">
+      <h3>Menú de Comida</h3>
+      <div class="menu-section">
+        <div class="menu-category">
+          <h4>Entrantes</h4>
+          <div class="menu-item">
+            <span>Ensalada de Quinoa (con vinagreta de manzana)</span>
+          </div>
+          <div class="menu-item">
+            <span>Tostadas de Aguacate (con toque de limón y chile)</span>
+          </div>
+          <div class="menu-item">
+            <span>Bruschetta Caprese (tomate, mozzarella y albahaca)</span>
+          </div>
+        </div>
+        <div class="menu-category">
+          <h4>Plato Principal</h4>
+          <div class="menu-item">
+            <span>Filete de Salmón con Salsa de Miel</span>
+          </div>
+          <div class="menu-item">
+            <span>Pasta al Pesto con Pollo</span>
+          </div>
+          <div class="menu-item">
+            <span>Risotto de Setas (cremoso con champiñones)</span>
+          </div>
+        </div>
+        <div class="menu-category">
+          <h4>Postres</h4>
+          <div class="menu-item">
+            <span>Tiramisú (tradicional italiano)</span>
+          </div>
+          <div class="menu-item">
+            <span>Mousse de Chocolate (suave y esponjoso)</span>
+          </div>
+          <div class="menu-item">
+            <span>Cheesecake de Frutos Rojos</span>
+          </div>
+        </div>
+        <div class="menu-category">
+          <h4>Bebidas</h4>
+          <div class="menu-item">
+            <span>Cóctel de Bienvenida (frutas tropicales)</span>
+          </div>
+          <div class="menu-item">
+            <span>Vino Blanco/Tinto (selección de la casa)</span>
+          </div>
+          <div class="menu-item">
+            <span>Agua y Refrescos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- BOTÓN PARA CERRAR SESIÓN ADMIN -->
+    <button onclick="logoutNovios()" class="btn">Cerrar Sesión</button>
+  </div>
+
+  <!-- ==============================
+       CONTENIDO PÚBLICO
+       ============================== -->
+  <div class="container">
+    <header>
+      <h1>💖 ¡Nuestra Boda! 💖</h1>
+      <p>Estamos emocionados de compartir este día tan especial contigo.</p>
+      <p><strong>Fecha:</strong> 20 de Junio de 2025</p>
+      <p><strong>Lugar:</strong> Jardines de la Hacienda, Querétaro</p>
+      <p><strong>Código de Vestimenta:</strong> Formal</p>
+    </header>
+  </div>
+
+  <!-- NOTIFICACIÓN EMERGENTE -->
+  <div id="notification"></div>
+
+  <!-- CONTADOR REGRESIVO -->
+  <div class="container" id="countdownContainer">
+    <h2>Cuenta Regresiva</h2>
+    <div id="countdown">
+      <div class="time-item">
+        <span id="days">--</span>
+        <span class="time-label">Días</span>
+      </div>
+      <div class="time-item">
+        <span id="hours">--</span>
+        <span class="time-label">Horas</span>
+      </div>
+      <div class="time-item">
+        <span id="minutes">--</span>
+        <span class="time-label">Minutos</span>
+      </div>
+      <div class="time-item">
+        <span id="seconds">--</span>
+        <span class="time-label">Segundos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIA / TIMELINE -->
+  <div class="container">
+    <h2>📜 Nuestra Historia</h2>
+    <div class="timeline">
+      <div>💑 Nos conocimos en 2015...</div>
+      <div>💍 Nos comprometimos en 2023...</div>
+      <div>🎉 Ahora celebramos nuestra boda en 2025...</div>
+    </div>
+  </div>
+
+  <!-- BANDA MUSICAL -->
+  <div class="container band-section">
+    <h2>Banda Musical</h2>
+    <div class="band-info">
+      <h3>Los Corazones Alegres</h3>
+      <p>¡Prepárate para disfrutar de una noche llena de ritmos contagiosos y pasión!</p>
+      <p><strong>Horario:</strong> 21:00 - 00:00</p>
+    </div>
+  </div>
+
+  <!-- PHOTO BOOTH Y GALERÍA -->
+  <div class="container photo-booth">
+    <h2>Photo Booth</h2>
+    <p>Tómate una foto y comparte tu felicidad</p>
+    <input type="file" accept="image/*" capture="environment" id="photoInput">
+    <div class="gallery">
+      <div class="slider-track" id="sliderTrack"></div>
+      <button class="slider-btn left" onclick="prevSlide()">‹</button>
+      <button class="slider-btn right" onclick="nextSlide()">›</button>
+    </div>
+  </div>
+
+  <!-- CONFIRMACIÓN DE ASISTENCIA -->
+  <div class="container">
+    <h2>Confirmación de Asistencia</h2>
+    <input type="text" id="guestName" placeholder="Tu Nombre" class="input">
+    <input type="number" id="guestCount" placeholder="¿Cuántos te acompañan?" class="input">
+    <select id="foodPreference" class="select">
+      <option value="">Preferencia Alimentaria</option>
+      <option value="Normal">Normal</option>
+      <option value="Vegetariano">Vegetariano</option>
+      <option value="Vegano">Vegano</option>
+      <option value="Sin gluten">Sin gluten</option>
+    </select>
+    <select id="transport" class="select">
+      <option value="">¿Cómo llegarás?</option>
+      <option value="Autobús">En Autobús</option>
+      <option value="Por su cuenta">Por su cuenta</option>
+    </select>
+    <input type="text" id="songRequest" placeholder="Canción que quieres escuchar" class="input">
+    <button class="btn" onclick="addGuest()">Enviar Confirmación</button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 Creativix. Todos los derechos reservados. Creado por Cristian Mesias.</p>
+  </footer>
+
+  <!-- ==============================
+       SCRIPTS Y FUNCIONALIDADES
+       ============================== -->
+  <script>
+    /******************************************
+     *     GENERAR O RECUPERAR ID DE USUARIO
+     ******************************************/
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      userId = Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("userId", userId);
+    }
+
+    /******************************************
+     *        LOGIN Y ADMINISTRACIÓN
+     ******************************************/
+    function loginNovios() {
+      const username = document.getElementById("loginUsername").value;
+      const password = document.getElementById("loginPassword").value;
+      // Credenciales simples de ejemplo
+      if (username === "novios" && password === "novios") {
+        localStorage.setItem("isAdmin", "true");
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        loadAdminGuestList();
+      } else {
+        alert("Credenciales incorrectas.");
+      }
+    }
+
+    function logoutNovios() {
+      localStorage.removeItem("isAdmin");
+      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("loginContainer").style.display = "block";
+    }
+
+    // Si ya está logueado (admin) en localStorage, se muestra directamente el panel
+    if (localStorage.getItem("isAdmin") === "true") {
+      document.getElementById("loginContainer").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+      loadAdminGuestList();
+    }
+
+    // Cargar lista de invitados en Panel Admin
+    function loadAdminGuestList() {
+      const adminGuestList = document.getElementById("adminGuestList");
+      adminGuestList.innerHTML = "";
+      const storedGuests = localStorage.getItem("guestList");
+      if (storedGuests) {
+        JSON.parse(storedGuests).forEach(guest => {
+          const entry = document.createElement("div");
+          entry.classList.add("guest-entry", "fade-in");
+          entry.setAttribute("data-id", guest.id);
+          // Formato simple en una sola línea
+          entry.innerHTML = `
+            <p>
+              ${guest.name} - ${guest.guestCount} persona(s) - ${guest.food} - ${guest.transport} - 🎶: ${guest.song}
+            </p>
+            <div>
+              <button class="edit-btn" onclick="editGuest(${guest.id})">Editar</button>
+              <button class="remove-btn" onclick="removeGuestAdmin(${guest.id})">Eliminar</button>
+            </div>
+          `;
+          adminGuestList.appendChild(entry);
+        });
+      }
+    }
+
+    // Editar invitado (admin)
+    function editGuest(id) {
+      let guestArray = JSON.parse(localStorage.getItem("guestList")) || [];
+      const guest = guestArray.find(g => g.id === id);
+      if (guest) {
+        const newName = prompt("Nuevo nombre:", guest.name) || guest.name;
+        const newCount = prompt("Nuevo número de personas:", guest.guestCount) || guest.guestCount;
+        const newFood = prompt("Nueva preferencia alimentaria:", guest.food) || guest.food;
+        const newTransport = prompt("Nuevo modo de transporte:", guest.transport) || guest.transport;
+        const newSong = prompt("Nueva canción:", guest.song) || guest.song;
+        guest.name = newName;
+        guest.guestCount = newCount;
+        guest.food = newFood;
+        guest.transport = newTransport;
+        guest.song = newSong;
+        localStorage.setItem("guestList", JSON.stringify(guestArray));
+        loadAdminGuestList();
+      }
+    }
+
+    // Eliminar invitado (admin)
+    function removeGuestAdmin(id) {
+      let guestArray = JSON.parse(localStorage.getItem("guestList")) || [];
+      guestArray = guestArray.filter(guest => guest.id !== id);
+      localStorage.setItem("guestList", JSON.stringify(guestArray));
+      loadAdminGuestList();
+    }
+
+    /******************************************
+     *        CONTADOR REGRESIVO
+     ******************************************/
+    const countdownEl = document.getElementById("countdown");
+    const eventDate = new Date("June 20, 2025 00:00:00").getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = eventDate - now;
+      if (distance < 0) {
+        countdownEl.innerHTML = "¡El evento ha comenzado!";
+        clearInterval(countdownInterval);
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdownEl.innerHTML = `
+        <div class="time-item"><span id="days">${days}</span><span class="time-label">Días</span></div>
+        <div class="time-item"><span id="hours">${hours}</span><span class="time-label">Horas</span></div>
+        <div class="time-item"><span id="minutes">${minutes}</span><span class="time-label">Minutos</span></div>
+        <div class="time-item"><span id="seconds">${seconds}</span><span class="time-label">Segundos</span></div>
+      `;
+    }
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    /******************************************
+     *   CONFIRMACIÓN DE ASISTENCIA (PÚBLICO)
+     ******************************************/
+    function addGuest() {
+      const name = document.getElementById('guestName').value;
+      const guestCount = document.getElementById('guestCount').value;
+      const food = document.getElementById('foodPreference').value;
+      const transport = document.getElementById('transport').value;
+      const song = document.getElementById('songRequest').value;
+
+      // Verificamos que todos los campos estén llenos
+      if (name && guestCount && food && transport && song) {
+        // Efecto rebote en el botón
+        const btn = document.querySelector('.btn');
+        btn.classList.add('bounce');
+        setTimeout(() => btn.classList.remove('bounce'), 500);
+
+        // Creamos objeto invitado
+        const guest = { 
+          id: Date.now(), 
+          name, 
+          guestCount, 
+          food, 
+          transport, 
+          song 
+        };
+        let guestArray = JSON.parse(localStorage.getItem("guestList")) || [];
+        guestArray.push(guest);
+        localStorage.setItem("guestList", JSON.stringify(guestArray));
+
+        // Muestra notificación
+        showNotification("¡Gracias por confirmar tu asistencia! Para cualquier modificación, contacta a los novios.");
+
+        // Limpiamos los campos
+        document.getElementById('guestName').value = '';
+        document.getElementById('guestCount').value = '';
+        document.getElementById('foodPreference').value = '';
+        document.getElementById('transport').value = '';
+        document.getElementById('songRequest').value = '';
+
+        // IMPORTANTE: Actualizar la lista en tiempo real si el admin está logueado
+        if (localStorage.getItem("isAdmin") === "true") {
+          loadAdminGuestList();
+        }
+      }
+    }
+
+    function showNotification(message) {
+      const notificationEl = document.getElementById("notification");
+      notificationEl.textContent = message;
+      notificationEl.style.display = "block";
+      setTimeout(() => {
+        notificationEl.style.display = "none";
+      }, 5000);
+    }
+
+    /******************************************
+     *   GALERÍA / CARRUSEL DE FOTOS
+     ******************************************/
+    let currentSlide = 0;
+    function updateSlider() {
+      const track = document.getElementById("sliderTrack");
+      const slides = track.children;
+      if (slides.length === 0) return;
+      const sliderWidth = document.querySelector(".gallery").offsetWidth;
+      track.style.transform = `translateX(-${currentSlide * sliderWidth}px)`;
+    }
+
+    function nextSlide() {
+      const track = document.getElementById("sliderTrack");
+      const slides = track.children;
+      if (slides.length === 0) return;
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+      } else {
+        currentSlide = 0;
+      }
+      updateSlider();
+    }
+
+    function prevSlide() {
+      const track = document.getElementById("sliderTrack");
+      const slides = track.children;
+      if (slides.length === 0) return;
+      if (currentSlide > 0) {
+        currentSlide--;
+      } else {
+        currentSlide = slides.length - 1;
+      }
+      updateSlider();
+    }
+
+    window.addEventListener("resize", updateSlider);
+
+    // Agregar imágenes al carrusel
+    function addImageToGallery(imageObj) {
+      const track = document.getElementById("sliderTrack");
+
+      // Contenedor individual de cada imagen
+      const galleryItem = document.createElement("div");
+      galleryItem.classList.add("gallery-item");
+
+      // Imagen
+      const img = document.createElement("img");
+      img.src = imageObj.src;
+
+      // Botón de descarga
+      const downloadBtn = document.createElement("button");
+      downloadBtn.classList.add("download-btn");
+      downloadBtn.innerText = "Descargar";
+      downloadBtn.addEventListener("click", function(e) {
+        e.stopPropagation(); // Evita cualquier otro evento en el contenedor
+        const a = document.createElement("a");
+        a.href = imageObj.src;
+        a.download = "foto_boda.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      // Agregamos la imagen y el botón al contenedor
+      galleryItem.appendChild(img);
+      galleryItem.appendChild(downloadBtn);
+
+      // Agregamos el contenedor al track
+      track.appendChild(galleryItem);
+      updateSlider();
+    }
+
+    // Manejo de archivo subido (Photo Booth)
+    document.getElementById("photoInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const imgSrc = e.target.result;
+          const imageObj = {
+            src: imgSrc,
+            ownerId: userId, // Se asocia el ID del usuario que sube la imagen
+          };
+          addImageToGallery(imageObj);
+
+          // Guardar en localStorage
+          let galleryImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
+          galleryImages.push(imageObj);
+          localStorage.setItem("galleryImages", JSON.stringify(galleryImages));
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Recuperar imágenes del carrusel al cargar la página
+    document.addEventListener("DOMContentLoaded", function() {
+      const storedGallery = localStorage.getItem("galleryImages");
+      if (storedGallery) {
+        JSON.parse(storedGallery).forEach(imgObj => addImageToGallery(imgObj));
+      }
+    });
+  </script>
+
+  <!-- ==============================
+       API YOUTUBE (VIDEO DE FONDO)
+       ============================== -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: '2AGy_0Dcgro',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: '2AGy_0Dcgro',
+          controls: 0,
+          modestbranding: 1,
+          showinfo: 0,
+          rel: 0
+        },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+    function onPlayerReady(event) {
+      event.target.mute();
+      event.target.playVideo();
+    }
+    function toggleAudio() {
+      if (player.isMuted()) {
+        player.unMute();
+        document.getElementById("toggleAudio").innerText = "Desactivar Audio";
+      } else {
+        player.mute();
+        document.getElementById("toggleAudio").innerText = "Activar Audio";
+      }
+    }
+  </script>
+</body>
+</html>

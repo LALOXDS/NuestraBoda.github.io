@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Montserrat:wght@300;400;600&display=swap');
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(to bottom, #ffe4e1, #ffccd5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 500px;
+  position: relative;
+  z-index: 10;
+}
+h1 {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.5rem;
+  color: #d6336c;
+}
+.input, .select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 2px solid #d6336c;
+  border-radius: 12px;
+  font-size: 16px;
+}
+.btn {
+  background-color: #d6336c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  margin: 10px;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+.btn:hover {
+  background-color: #a61d4d;
+}
+.gallery img {
+  width: 100px;
+  height: 100px;
+  margin: 5px;
+  border-radius: 10px;
+  object-fit: cover;
+}
